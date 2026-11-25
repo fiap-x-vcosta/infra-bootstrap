@@ -117,14 +117,19 @@ Least-privilege, sem `roles/editor`:
 
 ## Domínio e nameservers
 
-A zona Cloud DNS é **persistente** (~US$ 0,20/mês). Depois do `apply` local:
+A zona Cloud DNS é **persistente** (~US$ 0,20/mês), com **DNSSEC** (`state = on`). Depois do `apply` local:
 
 ```bash
 cd terraform
 terraform output -json dns_name_servers
 ```
 
-No registrador, troque os nameservers de `vcosta-fiap.online` pelos NS Google dessa saída. Records da janela (`api`, apex, front) **não** moram aqui.
+No registrador:
+
+1. Troque os nameservers de `vcosta-fiap.online` pelos NS Google dessa saída.
+2. Publique o registro **DS** (Digest) da KSK — no Console GCP: Cloud DNS → zona `fiap-x` → DNSSEC → copiar DS → colar no registrador.
+
+Sem o DS no registrador, a zona assina mas a cadeia de confiança não fecha para resolvedores validadores. Records da janela (`api`, apex, front) **não** moram aqui.
 
 ## Workload Identity de runtime mora no `infra-k8s`
 
