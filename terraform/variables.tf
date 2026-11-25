@@ -1,0 +1,194 @@
+variable "project_id" {
+  type        = string
+  description = "GCP project ID da demo."
+  default     = "fiap-x-vcosta"
+}
+
+variable "region" {
+  type        = string
+  description = "Região primária."
+  default     = "us-central1"
+}
+
+variable "project_services" {
+  type        = list(string)
+  description = "APIs mantidas habilitadas para os stacks do projeto."
+  default = [
+    "apigateway.googleapis.com",
+    "artifactregistry.googleapis.com",
+    "cloudresourcemanager.googleapis.com",
+    "compute.googleapis.com",
+    "container.googleapis.com",
+    "dns.googleapis.com",
+    "iam.googleapis.com",
+    "iamcredentials.googleapis.com",
+    "pubsub.googleapis.com",
+    "redis.googleapis.com",
+    "secretmanager.googleapis.com",
+    "servicecontrol.googleapis.com",
+    "servicemanagement.googleapis.com",
+    "servicenetworking.googleapis.com",
+    "sqladmin.googleapis.com",
+    "storage.googleapis.com",
+    "sts.googleapis.com",
+  ]
+}
+
+variable "state_bucket_name" {
+  type        = string
+  description = "Bucket GCS do backend de state dos stacks."
+  default     = "fiap-x-vcosta-tfstate"
+}
+
+variable "github_org" {
+  type        = string
+  description = "Org do GitHub autorizada no provider OIDC."
+  default     = "fiap-x-vcosta"
+}
+
+variable "workload_identity_pool_id" {
+  type        = string
+  description = "ID do Workload Identity Pool do GitHub."
+  default     = "github"
+}
+
+variable "ci_service_account_id" {
+  type        = string
+  description = "Account ID da service account usada pelos workflows."
+  default     = "github-actions"
+}
+
+variable "ci_repositories" {
+  type        = list(string)
+  description = "Repositórios da org cujos workflows podem assumir a service account de CI."
+  default = [
+    "autenticacao-service",
+    "consultas-service",
+    "e2e",
+    "infra-events",
+    "infra-k8s",
+    "notificacao-service",
+    "processamento-service",
+    "upload-service",
+    "web",
+  ]
+}
+
+variable "ci_project_roles" {
+  type        = list(string)
+  description = "Roles de projeto da service account de CI (least-privilege, sem editor)."
+  default = [
+    "roles/apigateway.admin",
+    "roles/artifactregistry.writer",
+    "roles/cloudsql.admin",
+    "roles/compute.networkAdmin",
+    "roles/container.admin",
+    "roles/dns.admin",
+    "roles/redis.admin",
+    "roles/secretmanager.admin",
+    "roles/servicemanagement.admin",
+    "roles/viewer",
+  ]
+}
+
+variable "network_name" {
+  type        = string
+  description = "Nome da VPC dedicada."
+  default     = "fiap-x-vpc"
+}
+
+variable "subnet_cidr" {
+  type        = string
+  description = "CIDR primário da subnet regional (nós do cluster)."
+  default     = "10.10.0.0/24"
+}
+
+variable "pods_range_name" {
+  type        = string
+  description = "Nome do range secundário de pods do cluster."
+  default     = "pods"
+}
+
+variable "pods_cidr" {
+  type        = string
+  description = "CIDR do range secundário de pods."
+  default     = "10.60.0.0/16"
+}
+
+variable "services_range_name" {
+  type        = string
+  description = "Nome do range secundário de services do cluster."
+  default     = "services"
+}
+
+variable "services_cidr" {
+  type        = string
+  description = "CIDR do range secundário de services."
+  default     = "10.61.0.0/20"
+}
+
+variable "psa_range_address" {
+  type        = string
+  description = "Início do range reservado ao Private Service Access."
+  default     = "10.100.0.0"
+}
+
+variable "psa_range_prefix_length" {
+  type        = number
+  description = "Prefixo do range reservado ao Private Service Access."
+  default     = 16
+}
+
+variable "registry_repository_id" {
+  type        = string
+  description = "Repositório Docker do Artifact Registry."
+  default     = "fiap-x"
+}
+
+variable "registry_keep_versions" {
+  type        = number
+  description = "Quantidade de versões recentes preservadas pela cleanup policy KEEP."
+  default     = 2
+}
+
+variable "registry_delete_older_than" {
+  type        = string
+  description = "Idade mínima (duração GCP, ex. 86400s) para a cleanup policy DELETE."
+  default     = "86400s"
+}
+
+variable "runtime_service_accounts" {
+  type = map(object({
+    cloudsql_client = bool
+  }))
+  description = "Service accounts de runtime. A chave é o account id (= nome do repositório)."
+  default = {
+    "autenticacao-service" = {
+      cloudsql_client = true
+    }
+    "consultas-service" = {
+      cloudsql_client = false
+    }
+    "notificacao-service" = {
+      cloudsql_client = true
+    }
+    "processamento-service" = {
+      cloudsql_client = true
+    }
+    "upload-service" = {
+      cloudsql_client = true
+    }
+  }
+}
+
+variable "dns_managed_zone_name" {
+  type        = string
+  description = "Nome da managed zone pública no Cloud DNS."
+  default     = "fiap-x"
+}
+
+variable "dns_name" {
+  type        = string
+  description = "DNS name da zona (FQDN com ponto final)."
+  default     = "vcosta-fiap.online."
+}
