@@ -1,0 +1,14 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  terraform:
+    uses: fiap-x-vcosta/actions/.github/workflows/ci-terraform.yml@main
+    with:
+      run_plan: false
