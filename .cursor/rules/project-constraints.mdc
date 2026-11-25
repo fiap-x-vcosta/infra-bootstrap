@@ -1,0 +1,18 @@
+---
+description: Restrições da camada persistente (infra-bootstrap)
+alwaysApply: true
+---
+
+# Restrições do projeto (`infra-bootstrap`)
+
+- Escopo: **Terraform** da camada persistente — APIs, bucket de state, WIF, SAs/roles, VPC/subnet/PSA, Artifact Registry, zona Cloud DNS. **Não** Cloud SQL (TF de cada serviço), cluster/manifests (`infra-k8s`), buckets de mídia (ADR 001 nos serviços) nem Memorystore (TF do `bff` / `consultas-service`).
+- Habilitar `redis.googleapis.com` (API). O recurso Memorystore **não** mora aqui.
+- **Apply e destroy só locais**, por humano com owner. **Nunca** criar workflow de `apply`/`destroy`: este stack concede IAM, e a SA de CI aplicando-o poderia se auto-promover.
+- Recursos daqui são gratuitos (ou centavos) e **sobrevivem** ao ciclo de demo; não introduzir aqui nada que custe por hora.
+- Roles da SA de CI vivem neste repo, sempre least-privilege e **sem** `roles/editor`. Sem Firestore neste projeto.
+- Não commitar kubeconfig, chaves SA, tfvars secretos.
+- CI barato: `fmt` + `validate` via `fiap-x-vcosta/actions` `ci-terraform`; root module em `terraform/`. Pin Terraform **1.16.1**.
+- Account id das SAs de runtime = **nome do repositório** (`autenticacao-service`, `upload-service`, `processamento-service`, `consultas-service`, `notificacao-service`).
+- Contrato com outros repos (VPC/subnet/ranges, e-mails das SAs, Artifact Registry, zona DNS) muda com cuidado: quebra serviços, `infra-k8s` e deploys.
+- README autocontido na org [`fiap-x-vcosta`](https://github.com/fiap-x-vcosta): sem referências a pastas fora do Git da org.
+- Proibida a string que combina o produto com “videos” em camel/kebab/snake. Preferir `fiap-x`, `processamento`, `midia`, `frames`.
